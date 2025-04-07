@@ -5,6 +5,7 @@ A Python-based application that provides intelligent, context-aware text suggest
 ## Features
 
 - Real-time text suggestions as you type
+- Automatic spelling correction for improved suggestions
 - WebSocket-based communication for instant feedback
 - Integration with Groq LLM through LangChain
 - Responsive and intuitive user interface

@@ -7,6 +7,7 @@ from langchain.schema import HumanMessage, SystemMessage
 from langchain.prompts import ChatPromptTemplate
 
 import config
+from spell_checker import correct_spelling
 
 # Configure logging
 logging.basicConfig(
@@ -57,6 +58,16 @@ async def get_text_suggestions(user_text: str) -> str:
         # Skip processing for very short inputs
         if len(user_text.strip()) < 3:
             return ""
+            
+        # Apply spell checking to correct any spelling errors
+        corrected_text = correct_spelling(user_text)
+        
+        # Log if corrections were made
+        if corrected_text != user_text:
+            logger.info(f"Spelling corrected: '{user_text}' → '{corrected_text}'")
+            
+        # Use the corrected text for generating suggestions
+        user_text = corrected_text
             
         llm = get_llm()
         

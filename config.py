@@ -19,3 +19,8 @@ DEBUG_MODE = True
 # Server Configuration
 HOST = "0.0.0.0"
 PORT = 8000
+
+# Spell Checker Configuration
+ENABLE_SPELL_CHECK = True  # Set to False to disable spell checking
+SPELL_CHECK_MIN_WORD_LENGTH = 3  # Minimum word length to check for spelling errors
+SPELL_CHECK_IGNORE_CAPITALIZED = True  # Ignore words that start with a capital letter (proper nouns)
