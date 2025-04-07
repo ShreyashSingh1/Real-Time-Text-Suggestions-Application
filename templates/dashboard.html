@@ -293,13 +293,8 @@
             const tableBody = document.getElementById('apiCallsTableBody');
             tableBody.innerHTML = '';
             
-            // Sort API calls by timestamp (newest first)
-            const sortedCalls = [...apiCalls].sort((a, b) => {
-                return new Date(b.timestamp) - new Date(a.timestamp);
-            });
-            
             // Display only the most recent 20 calls
-            const recentCalls = sortedCalls.slice(0, 20);
+            const recentCalls = apiCalls.slice(0, 20); // Already sorted by backend
             
             recentCalls.forEach(call => {
                 const row = document.createElement('tr');

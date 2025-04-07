@@ -61,6 +61,13 @@ async def get_api_usage():
     # Get complete usage data for dashboard
     usage_data = cost_tracker.usage_data
     
+    # Ensure the API calls are sorted by timestamp (newest first)
+    usage_data["api_calls"] = sorted(
+        usage_data["api_calls"], 
+        key=lambda x: x["timestamp"], 
+        reverse=True
+    )
+    
     # Return the data as JSON
     return JSONResponse(content=usage_data)
 
