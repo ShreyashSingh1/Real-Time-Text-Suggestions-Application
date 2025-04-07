@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Text Suggestions</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Real-Time Text Suggestions</h1>
+            <p>Powered by LangChain + Groq</p>
+        </header>
+        
+        <main>
+            <div class="text-input-container">
+                <textarea id="userInput" placeholder="Start typing here..."></textarea>
+                <div id="suggestion" class="suggestion-box"></div>
+            </div>
+            
+            <div class="controls">
+                <button id="clearBtn">Clear</button>
+                <button id="acceptBtn">Accept Suggestion (Tab)</button>
+                <div class="connection-status">
+                    <span id="statusIndicator" class="status-indicator disconnected"></span>
+                    <span id="statusText">Disconnected</span>
+                </div>
+            </div>
+            
+            <div class="info-panel">
+                <h3>How it works</h3>
+                <p>As you type, your text is sent to the AI model which generates context-aware suggestions in real-time.</p>
+                <p>Press <kbd>Tab</kbd> to accept the current suggestion or click the "Accept Suggestion" button.</p>
+            </div>
+        </main>
+        
+        <footer>
+            <p>Real-Time Text Suggestion Application</p>
+        </footer>
+    </div>
+    
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

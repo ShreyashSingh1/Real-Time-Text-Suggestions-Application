@@ -1,0 +1,75 @@
+import json
+import logging
+from typing import List, Dict, Any
+
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Request
+from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+import uvicorn
+
+from llm_service import get_text_suggestions
+import config
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
+logger = logging.getLogger(__name__)
+
+app = FastAPI(title="Real-Time Text Suggestions")
+
+# WebSocket connection manager
+class ConnectionManager:
+    def __init__(self):
+        self.active_connections: List[WebSocket] = []
+
+    async def connect(self, websocket: WebSocket):
+        await websocket.accept()
+        self.active_connections.append(websocket)
+        logger.info(f"Client connected. Total connections: {len(self.active_connections)}")
+
+    def disconnect(self, websocket: WebSocket):
+        self.active_connections.remove(websocket)
+        logger.info(f"Client disconnected. Remaining connections: {len(self.active_connections)}")
+
+    async def send_suggestion(self, websocket: WebSocket, suggestion: str):
+        await websocket.send_text(json.dumps({"suggestion": suggestion}))
+
+manager = ConnectionManager()
+
+# Mount static files
+app.mount("/static", StaticFiles(directory="static"), name="static")
+templates = Jinja2Templates(directory="templates")
+
+@app.get("/", response_class=HTMLResponse)
+async def get_home(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
+
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    await manager.connect(websocket)
+    try:
+        while True:
+            data = await websocket.receive_text()
+            logger.info(f"Received text: {data[:20]}..." if len(data) > 20 else f"Received text: {data}")
+            
+            # Process the text and get suggestions
+            suggestion = await get_text_suggestions(data)
+            
+            # Send suggestion back to the client
+            await manager.send_suggestion(websocket, suggestion)
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)
+    except Exception as e:
+        logger.error(f"Error in WebSocket connection: {str(e)}")
+        manager.disconnect(websocket)
+
+if __name__ == "__main__":
+    uvicorn.run(
+        "app:app",
+        host=config.HOST,
+        port=config.PORT,
+        reload=config.DEBUG_MODE
+    )
