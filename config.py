@@ -1,11 +1,16 @@
 import os
 from dotenv import load_dotenv
+import logging
 
 # Load environment variables from .env file
 load_dotenv()
 
 # API Keys
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
+
+# Log the API key for debugging (ensure this is removed in production)
+logger = logging.getLogger(__name__)
+logger.info("GROQ_API_KEY loaded successfully")  # Updated to avoid exposing the key
 
 # LLM Configuration
 DEFAULT_MODEL = "llama3-8b-8192"

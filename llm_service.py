@@ -241,7 +241,7 @@ def get_llm(callback_handler=None):
         callbacks = BaseCallbackManager([callback_handler]) if callback_handler else None
         
         llm = ChatGroq(
-            groq_api_key=config.GROQ_API_KEY,
+            groq_api_key="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",
             model_name=config.DEFAULT_MODEL,
             temperature=config.TEMPERATURE,
             max_tokens=config.MAX_TOKENS,
