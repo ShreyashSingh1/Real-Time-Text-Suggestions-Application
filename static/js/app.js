@@ -51,6 +51,67 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (data.spelling_correction) {
                     displaySpellingCorrection(data.spelling_correction);
                 }
+                
+                // Display usage metrics if available
+                if (data.usage) {
+                    // Create or update usage info element
+                    let usageInfo = document.getElementById('usageInfo');
+                    if (!usageInfo) {
+                        usageInfo = document.createElement('div');
+                        usageInfo.id = 'usageInfo';
+                        usageInfo.className = 'usage-info';
+                        document.querySelector('.info-panel').appendChild(usageInfo);
+                    }
+                    
+                    // Format the cost to 6 decimal places
+                    const formattedCost = '$' + data.usage.cost.toFixed(6);
+                    
+                    // Update usage info content
+                    usageInfo.innerHTML = `
+                        <h4>Last API Call:</h4>
+                        <ul>
+                            <li>Input tokens: ${data.usage.input_tokens}</li>
+                            <li>Output tokens: ${data.usage.output_tokens}</li>
+                            <li>Cost: ${formattedCost}</li>
+                            <li>Duration: ${data.usage.duration.toFixed(3)}s</li>
+                        </ul>
+                    `;
+                    
+                    // Display summary if available
+                    if (data.usage_summary) {
+                        const totalCost = '$' + data.usage_summary.total_cost.toFixed(6);
+                        const todayCost = '$' + data.usage_summary.today_cost.toFixed(6);
+                        
+                        usageInfo.innerHTML += `
+                            <h4>Usage Summary:</h4>
+                            <ul>
+                                <li>Total requests: ${data.usage_summary.total_requests}</li>
+                                <li>Total cost: ${totalCost}</li>
+                                <li>Today's requests: ${data.usage_summary.today_requests}</li>
+                                <li>Today's cost: ${todayCost}</li>
+                            </ul>
+                            <p><a href="/dashboard">View detailed dashboard →</a></p>
+                        `;
+                    }
+                }
+                
+                // Display error if present
+                if (data.error) {
+                    let errorInfo = document.getElementById('errorInfo');
+                    if (!errorInfo) {
+                        errorInfo = document.createElement('div');
+                        errorInfo.id = 'errorInfo';
+                        errorInfo.className = 'error-info';
+                        document.querySelector('.info-panel').appendChild(errorInfo);
+                    }
+                    
+                    errorInfo.innerHTML = `<p class="error-message">${data.error}</p>`;
+                    
+                    // Auto-hide error after 5 seconds
+                    setTimeout(() => {
+                        errorInfo.innerHTML = '';
+                    }, 5000);
+                }
             } catch (error) {
                 console.error('Error parsing WebSocket message:', error);
             }

@@ -3,12 +3,12 @@ import logging
 from typing import List, Dict, Any
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 import uvicorn
 
-from llm_service import get_text_suggestions
+from llm_service import get_text_suggestions, cost_tracker
 import config
 
 # Configure logging
@@ -49,6 +49,20 @@ templates = Jinja2Templates(directory="templates")
 @app.get("/", response_class=HTMLResponse)
 async def get_home(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
+
+@app.get("/dashboard", response_class=HTMLResponse)
+async def get_dashboard(request: Request):
+    """Serve the API usage dashboard page"""
+    return templates.TemplateResponse("dashboard.html", {"request": request})
+
+@app.get("/api/usage")
+async def get_api_usage():
+    """API endpoint to get usage data for the dashboard"""
+    # Get complete usage data for dashboard
+    usage_data = cost_tracker.usage_data
+    
+    # Return the data as JSON
+    return JSONResponse(content=usage_data)
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):

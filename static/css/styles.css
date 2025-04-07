@@ -175,6 +175,84 @@ footer {
     font-size: 14px;
 }
 
+/* Dashboard link styling */
+.dashboard-link {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: var(--primary-color);
+    padding: 10px 15px;
+    border-radius: 30px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    transition: all 0.3s ease;
+}
+
+.dashboard-link:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.dashboard-link a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+}
+
+/* Usage info styling */
+.usage-info {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #f1f8ff;
+    border-left: 4px solid var(--primary-color);
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.usage-info h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: var(--primary-color);
+}
+
+.usage-info ul {
+    list-style-type: none;
+    padding-left: 0;
+    margin-bottom: 15px;
+}
+
+.usage-info li {
+    margin-bottom: 5px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.usage-info a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.usage-info a:hover {
+    text-decoration: underline;
+}
+
+/* Error message styling */
+.error-info {
+    margin-top: 15px;
+}
+
+.error-message {
+    padding: 10px 15px;
+    background-color: #fff5f5;
+    border-left: 4px solid var(--error-color);
+    color: var(--error-color);
+    border-radius: 4px;
+    font-size: 14px;
+}
+
 /* Responsive adjustments */
 @media (max-width: 600px) {
     .container {
@@ -189,6 +267,13 @@ footer {
     
     .connection-status {
         justify-content: center;
+    }
+    
+    .dashboard-link {
+        bottom: 10px;
+        right: 10px;
+        padding: 8px 12px;
+        font-size: 14px;
     }
 }
 
