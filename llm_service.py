@@ -45,26 +45,34 @@ context-aware text suggestions as the user types. Consider the following guideli
 Provide ONLY the suggested text continuation without any explanations or prefixes.
 """
 
-async def get_text_suggestions(user_text: str) -> str:
+async def get_text_suggestions(user_text: str) -> dict:
     """Generate text suggestions based on user input
     
     Args:
         user_text: The text input from the user
         
     Returns:
-        A string containing the suggested text continuation
+        A dictionary containing the suggested text continuation and spelling corrections
     """
     try:
         # Skip processing for very short inputs
         if len(user_text.strip()) < 3:
-            return ""
+            return {"suggestion": ""}
             
         # Apply spell checking to correct any spelling errors
         corrected_text = correct_spelling(user_text)
         
+        # Track spelling corrections to send to frontend
+        spelling_correction = None
+        
         # Log if corrections were made
         if corrected_text != user_text:
             logger.info(f"Spelling corrected: '{user_text}' → '{corrected_text}'")
+            # Create spelling correction data for frontend
+            spelling_correction = {
+                "original": user_text,
+                "corrected": corrected_text
+            }
             
         # Use the corrected text for generating suggestions
         user_text = corrected_text
@@ -86,8 +94,13 @@ async def get_text_suggestions(user_text: str) -> str:
         logger.info(f"Generated suggestion: {suggestion[:30]}..." if len(suggestion) > 30 
                    else f"Generated suggestion: {suggestion}")
         
-        return suggestion
+        # Return both the suggestion and any spelling corrections
+        result = {"suggestion": suggestion}
+        if spelling_correction:
+            result["spelling_correction"] = spelling_correction
+            
+        return result
         
     except Exception as e:
         logger.error(f"Error generating suggestion: {str(e)}")
-        return ""
+        return {"suggestion": ""}

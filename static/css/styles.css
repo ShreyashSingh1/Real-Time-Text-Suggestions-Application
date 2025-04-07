@@ -9,6 +9,8 @@
     --border-color: #dee2e6;
     --suggestion-bg: #e9ecef;
     --error-color: #dc3545;
+    --spell-check-bg: #fff3cd;
+    --spell-check-border: #ffeeba;
 }
 
 * {
@@ -188,4 +190,57 @@ footer {
     .connection-status {
         justify-content: center;
     }
+}
+
+/* Spell Check Styles */
+.spell-check-container {
+    margin-top: 15px;
+    padding: 12px;
+    background-color: var(--spell-check-bg);
+    border: 1px solid var(--spell-check-border);
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.spell-check-container h4 {
+    margin-bottom: 10px;
+    color: var(--text-color);
+    font-size: 16px;
+}
+
+.spell-suggestion-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--spell-check-border);
+}
+
+.spell-suggestion-item:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.misspelled-word {
+    color: var(--error-color);
+    font-weight: bold;
+    text-decoration: line-through;
+}
+
+.correction {
+    color: var(--accent-color);
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+.apply-correction {
+    margin-left: auto;
+    padding: 4px 8px;
+    font-size: 12px;
+    background-color: var(--accent-color);
+}
+
+.apply-correction:hover {
+    background-color: #218838;
 }

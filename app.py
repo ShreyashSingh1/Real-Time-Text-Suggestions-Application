@@ -34,8 +34,11 @@ class ConnectionManager:
         self.active_connections.remove(websocket)
         logger.info(f"Client disconnected. Remaining connections: {len(self.active_connections)}")
 
-    async def send_suggestion(self, websocket: WebSocket, suggestion: str):
-        await websocket.send_text(json.dumps({"suggestion": suggestion}))
+    async def send_suggestion(self, websocket: WebSocket, response):
+        # If response is a string (for backward compatibility), convert to dict
+        if isinstance(response, str):
+            response = {"suggestion": response}
+        await websocket.send_text(json.dumps(response))
 
 manager = ConnectionManager()
 
@@ -56,10 +59,10 @@ async def websocket_endpoint(websocket: WebSocket):
             logger.info(f"Received text: {data[:20]}..." if len(data) > 20 else f"Received text: {data}")
             
             # Process the text and get suggestions
-            suggestion = await get_text_suggestions(data)
+            response = await get_text_suggestions(data)
             
-            # Send suggestion back to the client
-            await manager.send_suggestion(websocket, suggestion)
+            # Send response back to the client
+            await manager.send_suggestion(websocket, response)
     except WebSocketDisconnect:
         manager.disconnect(websocket)
     except Exception as e:

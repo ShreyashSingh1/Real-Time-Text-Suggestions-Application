@@ -1,6 +1,8 @@
 // Real-Time Text Suggestions - Frontend JavaScript
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Load the spell checker
+    const spellChecker = window.spellChecker;
     // DOM Elements
     const userInput = document.getElementById('userInput');
     const suggestionBox = document.getElementById('suggestion');
@@ -8,6 +10,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const acceptBtn = document.getElementById('acceptBtn');
     const statusIndicator = document.getElementById('statusIndicator');
     const statusText = document.getElementById('statusText');
+    
+    // Create spell check elements
+    const spellCheckContainer = document.createElement('div');
+    spellCheckContainer.className = 'spell-check-container';
+    spellCheckContainer.style.display = 'none';
+    document.querySelector('.text-input-container').appendChild(spellCheckContainer);
     
     // WebSocket connection
     let socket;
@@ -38,10 +46,54 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (data.suggestion) {
                     displaySuggestion(data.suggestion);
                 }
+                
+                // Handle spelling corrections from backend
+                if (data.spelling_correction) {
+                    displaySpellingCorrection(data.spelling_correction);
+                }
             } catch (error) {
                 console.error('Error parsing WebSocket message:', error);
             }
         };
+        
+        // Display spelling correction from backend
+        function displaySpellingCorrection(correction) {
+            if (!correction || !correction.original || !correction.corrected) return;
+            
+            // Show the spelling correction in the spell check container
+            spellCheckContainer.style.display = 'block';
+            spellCheckContainer.innerHTML = '';
+            
+            const heading = document.createElement('h4');
+            heading.textContent = 'Spelling Correction:';
+            spellCheckContainer.appendChild(heading);
+            
+            const suggestionItem = document.createElement('div');
+            suggestionItem.className = 'spell-suggestion-item';
+            
+            const wordSpan = document.createElement('span');
+            wordSpan.className = 'misspelled-word';
+            wordSpan.textContent = correction.original;
+            
+            const arrowSpan = document.createElement('span');
+            arrowSpan.textContent = ' → ';
+            
+            const correctionSpan = document.createElement('span');
+            correctionSpan.className = 'correction';
+            correctionSpan.textContent = correction.corrected;
+            
+            const applyButton = document.createElement('button');
+            applyButton.className = 'apply-correction';
+            applyButton.textContent = 'Apply';
+            applyButton.onclick = () => applySpellCorrection(correction.original, correction.corrected);
+            
+            suggestionItem.appendChild(wordSpan);
+            suggestionItem.appendChild(arrowSpan);
+            suggestionItem.appendChild(correctionSpan);
+            suggestionItem.appendChild(applyButton);
+            
+            spellCheckContainer.appendChild(suggestionItem);
+        }
         
         socket.onclose = () => {
             console.log('WebSocket connection closed');
@@ -87,6 +139,80 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
+    // Check spelling in the input text
+    function checkSpelling() {
+        const text = userInput.value;
+        if (!text || !spellChecker) return;
+        
+        // Find misspelled words
+        const misspelledWords = spellChecker.findMisspelledWords(text);
+        
+        // Clear previous spell check results
+        spellCheckContainer.innerHTML = '';
+        
+        // If no misspellings found, hide the container
+        if (misspelledWords.length === 0) {
+            spellCheckContainer.style.display = 'none';
+            return;
+        }
+        
+        // Display misspelled words and suggestions
+        spellCheckContainer.style.display = 'block';
+        const heading = document.createElement('h4');
+        heading.textContent = 'Spelling Suggestions:';
+        spellCheckContainer.appendChild(heading);
+        
+        misspelledWords.forEach(item => {
+            const suggestionItem = document.createElement('div');
+            suggestionItem.className = 'spell-suggestion-item';
+            
+            const wordSpan = document.createElement('span');
+            wordSpan.className = 'misspelled-word';
+            wordSpan.textContent = item.word;
+            
+            const arrowSpan = document.createElement('span');
+            arrowSpan.textContent = ' → ';
+            
+            const correctionSpan = document.createElement('span');
+            correctionSpan.className = 'correction';
+            correctionSpan.textContent = item.correction;
+            
+            const applyButton = document.createElement('button');
+            applyButton.className = 'apply-correction';
+            applyButton.textContent = 'Apply';
+            applyButton.onclick = () => applySpellCorrection(item.word, item.correction);
+            
+            suggestionItem.appendChild(wordSpan);
+            suggestionItem.appendChild(arrowSpan);
+            suggestionItem.appendChild(correctionSpan);
+            suggestionItem.appendChild(applyButton);
+            
+            spellCheckContainer.appendChild(suggestionItem);
+        });
+    }
+    
+    // Apply a spelling correction
+    function applySpellCorrection(misspelled, correction) {
+        const text = userInput.value;
+        
+        // Escape special regex characters in the misspelled word
+        const escapedMisspelled = misspelled.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        
+        // Use a more robust regex pattern that handles special characters
+        const correctedText = text.replace(new RegExp('\\b' + escapedMisspelled + '\\b', 'g'), correction);
+        userInput.value = correctedText;
+        
+        // Re-check spelling after correction
+        checkSpelling();
+        
+        // Send corrected text for suggestions
+        clearTimeout(typingTimer);
+        typingTimer = setTimeout(sendTextForSuggestion, doneTypingInterval);
+        
+        // Hide the spelling correction container after applying
+        spellCheckContainer.style.display = 'none';
+    }
+    
     // Send text to server for suggestions
     function sendTextForSuggestion() {
         const text = userInput.value.trim();
@@ -113,7 +239,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // Clear any previous timers
         clearTimeout(typingTimer);
         
-        // Start a new timer
+        // Check spelling as user types
+        checkSpelling();
+        
+        // Start a new timer for suggestions
         typingTimer = setTimeout(sendTextForSuggestion, doneTypingInterval);
     });
     
